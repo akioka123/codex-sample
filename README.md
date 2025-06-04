@@ -1,0 +1,2 @@
+# codex-sample
+OpenAIのCodexがPlusに配信されたので試しに使ってみる
