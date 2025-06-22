@@ -1,8 +1,7 @@
 package com.example.receiptapp.controller;
 
 import com.example.receiptapp.entity.AppUser;
-import com.example.receiptapp.repository.AppUserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.receiptapp.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,12 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    private final AppUserRepository repository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    public UserController(AppUserRepository repository, PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -30,7 +27,6 @@ public class UserController {
      */
     @PostMapping("/register")
     public AppUser register(@RequestBody AppUser user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return repository.save(user);
+        return userService.register(user);
     }
 }
