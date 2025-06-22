@@ -1,9 +1,7 @@
 package com.example.receiptapp.controller;
 
-import com.example.receiptapp.entity.AppUser;
 import com.example.receiptapp.entity.Receipt;
-import com.example.receiptapp.repository.AppUserRepository;
-import com.example.receiptapp.repository.ReceiptRepository;
+import com.example.receiptapp.service.ReceiptService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +14,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/receipts")
 public class ReceiptController {
-    private final ReceiptRepository receiptRepository;
-    private final AppUserRepository userRepository;
+    private final ReceiptService receiptService;
 
-    public ReceiptController(ReceiptRepository receiptRepository, AppUserRepository userRepository) {
-        this.receiptRepository = receiptRepository;
-        this.userRepository = userRepository;
+    public ReceiptController(ReceiptService receiptService) {
+        this.receiptService = receiptService;
     }
 
     /**
@@ -42,9 +38,8 @@ public class ReceiptController {
                               @RequestParam(defaultValue = "") String tag,
                               @RequestParam(defaultValue = "0") int minAmount,
                               @RequestParam(defaultValue = "1000000") int maxAmount) {
-        AppUser user = userRepository.findByUsername(auth.getName()).orElseThrow();
-        return receiptRepository.findByOwnerAndDateBetweenAndTagContainingAndAmountBetween(
-                user, start, end, tag, minAmount, maxAmount);
+        return receiptService.listReceipts(
+                auth.getName(), start, end, tag, minAmount, maxAmount);
     }
 
     /**
@@ -56,9 +51,7 @@ public class ReceiptController {
      */
     @PostMapping
     public Receipt save(Authentication auth, @RequestBody Receipt receipt) {
-        AppUser user = userRepository.findByUsername(auth.getName()).orElseThrow();
-        receipt.setOwner(user);
-        return receiptRepository.save(receipt);
+        return receiptService.saveReceipt(auth.getName(), receipt);
     }
 
     /**
@@ -68,6 +61,6 @@ public class ReceiptController {
      */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        receiptRepository.deleteById(id);
+        receiptService.deleteReceipt(id);
     }
 }
